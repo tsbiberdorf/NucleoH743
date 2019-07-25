@@ -77,6 +77,7 @@ UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 osThreadId defaultTaskHandle;
+osThreadId cliTaskHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -88,6 +89,7 @@ static void MX_ETH_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void const * argument);
+void cliEntryTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -157,6 +159,10 @@ int main(void)
   /* definition and creation of defaultTask */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of cliTask */
+  osThreadDef(cliTask, cliEntryTask, osPriorityLow, 0, 512);
+  cliTaskHandle = osThreadCreate(osThread(cliTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -483,6 +489,24 @@ void StartDefaultTask(void const * argument)
 	  osDelay(100);
   }
   /* USER CODE END 5 */ 
+}
+
+/* USER CODE BEGIN Header_cliEntryTask */
+/**
+* @brief Function implementing the cliTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_cliEntryTask */
+void cliEntryTask(void const * argument)
+{
+  /* USER CODE BEGIN cliEntryTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END cliEntryTask */
 }
 
 /**
