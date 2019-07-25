@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "RTT/SEGGER_RTT.h"
 #include "CLI/debugCLI.h"
+#include "usbd_cdc_if.h"
 
 /* USER CODE END Includes */
 
@@ -491,6 +492,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
     	HAL_UART_Transmit(DEBUG_PORT, (uint8_t *)aRxBuffer, 1,0xFFFF);
     	HAL_UART_Receive_IT(DEBUG_PORT, (uint8_t *)aRxBuffer, 1);
+    	CDC_Transmit_FS(aRxBuffer,1);
     }
 }
 /* USER CODE END 4 */
