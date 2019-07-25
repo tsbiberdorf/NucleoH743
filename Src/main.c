@@ -38,7 +38,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -80,7 +79,12 @@ UART_HandleTypeDef huart3;
 osThreadId defaultTaskHandle;
 osThreadId cliTaskHandle;
 /* USER CODE BEGIN PV */
+#define DEBUG_PORT (&huart2)
 
+uint8_t aTxStartMessage[] = "\r\n****UART-Hyperterminal communication based on IT ****\r\nEnter 10 characters using keyboard :\r\n";
+
+/* Buffer used for reception */
+uint8_t aRxBuffer[20];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,7 +102,26 @@ void cliEntryTask(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#ifdef __GNUC__
+  /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+     set to 'Yes') calls __io_putchar() */
+  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the EVAL_COM1 and Loop until the end of transmission */
+  HAL_UART_Transmit(DEBUG_PORT, (uint8_t *)&ch, 1, 0xFFFF);
 
+  return ch;
+}
 /* USER CODE END 0 */
 
 /**
@@ -344,7 +367,7 @@ static void MX_USART2_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-  DebugCliSetUartHandler(&huart2);
+
   /* USER CODE END USART2_Init 2 */
 
 }
@@ -449,7 +472,27 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief Rx Transfer completed callbacks
+  * @param huart: uart handle
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
 
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_UART_RxCpltCallback can be implemented in the user file
+   */
+//    HAL_UART_Transmit(DEBUG_PORT, (uint8_t *)aRxBuffer, 1,0xFFFF);
+
+    if(huart == DEBUG_PORT)
+    {
+    	HAL_UART_Transmit(DEBUG_PORT, (uint8_t *)aRxBuffer, 1,0xFFFF);
+    	HAL_UART_Receive_IT(DEBUG_PORT, (uint8_t *)aRxBuffer, 1);
+    }
+}
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -502,6 +545,10 @@ void StartDefaultTask(void const * argument)
 void cliEntryTask(void const * argument)
 {
   /* USER CODE BEGIN cliEntryTask */
+
+	HAL_UART_Transmit_IT(DEBUG_PORT, (uint8_t *)aTxStartMessage, sizeof(aTxStartMessage));
+	HAL_UART_Receive_IT(DEBUG_PORT, (uint8_t *)aRxBuffer, 1);
+
   /* Infinite loop */
   for(;;)
   {

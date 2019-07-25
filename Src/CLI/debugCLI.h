@@ -9,6 +9,5 @@
 #define CLI_DEBUGCLI_H_
 
 
-void DebugCliSetUartHandler(UART_HandleTypeDef *ptrHandler);
 
 #endif /* CLI_DEBUGCLI_H_ */
