@@ -29,6 +29,7 @@
 #include "RTT/SEGGER_RTT.h"
 #include "CLI/debugCLI.h"
 #include "usbd_cdc_if.h"
+#include "lwip.h"
 
 /* USER CODE END Includes */
 
@@ -445,6 +446,7 @@ void StartDefaultTask(void const * argument)
   MX_MBEDTLS_Init();
 
   /* USER CODE BEGIN 5 */
+  MX_LWIP_Init();
 	  /* Create tcp_ip stack thread */
 //	  tcpip_init(NULL, NULL);
 //
